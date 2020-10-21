@@ -1,0 +1,84 @@
+#include<bits/stdc++.h>
+using namespace std;
+long long int n,X[1000006],Y[1000006];
+bool viisit[1003];
+vector <int> edges[1003];
+double E;
+struct node{
+	int i,j;
+	long long len;
+}N[1000003];
+struct cmp{
+	bool operator()(node a,node b){
+		return a.len > b.len;
+	}
+};
+priority_queue<node,vector <node>, cmp>PQ;
+int dfs(int pos,int prev){
+	int i,k,rtn=0;
+	if(!viisit[pos])return pos;
+	k = edges[pos].size();
+	for(i=0;i<k;i++){
+		if(edges[pos][i] != prev)
+			rtn = dfs(edges[pos][i],pos);
+		if(rtn)break;
+	}
+	
+	return rtn;
+}
+int main(){
+	int d,t; scanf("%d",&t); d = t;
+	for(;d>0;d--){
+		printf("#%d ",t-d+1);
+        int i,j,cnt=1;
+		long long tmp,ans=0;
+        scanf("%lld",&n);
+		memset(viisit,0,sizeof(viisit));
+		for(i=1;i<=n;i++)scanf("%lld ",&X[i]);
+		for(i=1;i<=n;i++)scanf("%lld ",&Y[i]);
+		scanf("%lf",&E);
+		for(i=1;i<n;i++){
+			for(j=i+1;j<=n;j++){
+				N[cnt].len = tmp = (X[i]-X[j])*(X[i]-X[j]);
+				N[cnt].len += tmp = (Y[i]-Y[j])*(Y[i]-Y[j]);
+				N[cnt].i=i;N[cnt].j=j;
+				PQ.push(N[cnt]);
+				cnt++;
+			}
+		}
+		int src,dest,cyc=0;
+		for(i=1;i<cnt;i++){
+			src=dfs(PQ.top().i,0);
+			dest=dfs(PQ.top().j,0);
+			if(src != dest){
+				ans+=PQ.top().len;
+				cyc++;
+				if(src < dest){
+					viisit[dest]=1;
+					edges[src].push_back(dest);
+					edges[dest].push_back(src);
+				}
+				else{
+					viisit[src]=1;
+					edges[src].push_back(dest);
+					edges[dest].push_back(src);
+				}
+			}
+			else {
+				if(cyc == n-1)break;
+			}
+			PQ.pop();
+		}
+		double as = floor(ans*E+0.5);
+		printf("%lld\n",(long long int)as);
+		for(i=1;i<=n;i++)edges[i].clear();
+		PQ = priority_queue<node,vector <node>, cmp>();
+		/*
+		for(i=1;i<cnt;i++){
+			cout<<PQ.top().len<<endl;
+			PQ.pop();
+		}
+		*/
+	}
+	return 0;
+}
